@@ -38,8 +38,10 @@ is_number(const char *str)
 }
 
 static inline void
-empty_escape(const char *str)
+escape(const char *str)
 {
+	fprintf(stdout, "\"");
+
 	while (*str) {
 		switch (*str) {
 		case '"':
@@ -52,13 +54,7 @@ empty_escape(const char *str)
 
 		str++;
 	}
-}
 
-static inline void
-escape(const char *str)
-{
-	fprintf(stdout, "\"");
-	empty_escape(str);
 	fprintf(stdout, "\"");
 }
 
@@ -141,60 +137,12 @@ json_parse(const char *json, const char *name, int *start, int *len)
 void
 json_print_bar(struct bar *bar)
 {
-	#define OPEN "<span background=\\\"%s\\\" foreground=\\\"%s\\\">" 
-	#define CLOSE "</span>"
-	#define NUM_COLOS 5
-	#define MAX(x, y) (x < y ? y : x)
-	#define MIN(x, y) (x > y ? y : x)
-
-	//char * back = "#1E272B";
-	char * colos[NUM_COLOS] = {"#1E272B", "#3FD98B", "#0D3813", "#081F1F", "#040E12"};
-	char * fgs[NUM_COLOS] = {"#EEEEEE", "#1E272B", "#EEEEEE", "#EEEEEE", "#EEEEEE"};
-	int first = 0;
-	int second = 0;
-	fprintf(stdout, ",[{\"full_text\":\"");
-	for(int i = 0; i < bar->num; i++){
-		if(i < MIN(bar->num/2,NUM_COLOS)){
-			second = i+1;
-		}else if(i > MAX(bar->num/2,bar->num - NUM_COLOS)){
-			second = bar->num - i - 1;
-		}
-		struct block *block = bar->blocks + i;
-		int text_colo = first;
-		//fprintf(stdout, "%d %d\n", first, second);
-		if(i > bar->num/2){
-			if(first == second){
-				fprintf(stdout, OPEN "" CLOSE, colos[second], fgs[second]);
-			}
-			fprintf(stdout, OPEN "" CLOSE, colos[first], colos[second]);
-			text_colo = second;
-		}
-		if (*FULL_TEXT(block)) {
-			fprintf(stdout, OPEN " ", colos[text_colo], fgs[text_colo]);
-			empty_escape(block->updated_props.full_text);
-			fprintf(stdout, " " CLOSE);
-		}
-                if(i < bar->num/2){
-			if(first == second){
-				fprintf(stdout, OPEN "" CLOSE, colos[second], fgs[second]);
-			}
-			fprintf(stdout, OPEN "" CLOSE, colos[second], colos[first]);
-		}
-		first = second;
-	}
-	fprintf(stdout, "\", \"markup\":\"pango\",\"flavor\":\"lemon\"}]\n");
-	#undef NUM_COLOS
-	#undef OPEN
-	#undef CLOSE
-	#undef MAX
-	#undef MIN
-	/*
 	fprintf(stdout, ",[{\"full_text\":\"\"}");
 
 	for (int i = 0; i < bar->num; ++i) {
 		struct block *block = bar->blocks + i;
 
-		// full_text is the only mandatory key, skip if empty 
+		/* full_text is the only mandatory key, skip if empty */
 		if (!*FULL_TEXT(block)) {
 			bdebug(block, "no text to display, skipping");
 			continue;
@@ -204,6 +152,5 @@ json_print_bar(struct bar *bar)
 	}
 
 	fprintf(stdout, "]\n");
-	*/
 	fflush(stdout);
 }
