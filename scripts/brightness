@@ -1,0 +1,9 @@
+#!/bin/bash
+
+case $BLOCK_BUTTON in
+  4) val=`dc <<< "$(brightness) 2 + p"`;; # scroll up, raise brightness
+  5) val=`dc <<< "$(brightness) 2 - p"`;; # scroll down, lower brightness
+  *) val="";;
+esac
+
+printf '%.0f%%\n' "`brightness $val`"

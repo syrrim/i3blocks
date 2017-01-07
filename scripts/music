@@ -1,0 +1,27 @@
+#!/bin/bash
+
+case $BLOCK_BUTTON in
+  1) xdg-open 'http://localhost:6680/musicbox_webclient/index.html#home';; #left click to open editor
+  2) mpc -q stop;;  # middle click, stop 
+  3) mpc -q toggle;;  # right click, play/pause
+  4) mpc -q seek +10;; # scroll up, seek forwards
+  5) mpc -q seek -10;; # scroll down, seek backwards
+esac
+
+MAX_WIDTH=${1:-1000}
+
+state=$($(dirname $0)/mpdstate)
+case `head -n 1 <<< "$state"` in
+    playing)printf "▶  ";;
+    paused)printf "▮▮ ";;
+    stopped)printf "◼ ";;
+esac
+time=`tail -n +2 <<< "$state"`
+EXPAND=`mpc current -f "%title%[ (%artist%)][ %album%] - $time"`
+if [[ ${#EXPAND} -gt $MAX_WIDTH ]]; then
+    EXPAND=`mpc current -f "%title%[ %album%] - $time"`
+    if [[ ${#EXPAND} -gt $MAX_WIDTH ]]; then
+        EXPAND=`mpc current -f "%title% - $time"`
+    fi
+fi
+echo $EXPAND

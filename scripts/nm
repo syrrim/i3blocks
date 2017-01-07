@@ -1,0 +1,6 @@
+#!/bin/bash
+nmcli device wifi list |                    # shows table of nearby wifi networks
+    tail -n +2 |                            # first line is headers for table
+    grep ^* |                               # wildcard marks current network
+    sed 's/  \+/  /g' |                     # dividers between columns are uneven; awk prefers them all to be the same
+    awk -F'  ' '{print $2 ": " $6 "%"}'  # prints network name and strength

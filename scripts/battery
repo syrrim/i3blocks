@@ -19,6 +19,7 @@ use utf8;
 my $acpi;
 my $status;
 my $percent;
+my $ac_adapt;
 my $full_text;
 my $short_text;
 my $bat_number = $ENV{BLOCK_INSTANCE} || 0;
@@ -38,15 +39,29 @@ $percent = $2;
 $full_text = "$percent%";
 
 if ($status eq 'Discharging') {
-	$full_text .= ' DIS';
+	$full_text .= ' ⭭';
 } elsif ($status eq 'Charging') {
-	$full_text .= ' CHR';
+	$full_text .= ' ⭫';
+} elsif ($status eq 'Unknown') {
+	open (AC_ADAPTER, "acpi -a |") or die;
+	$ac_adapt = <AC_ADAPTER>;
+	close(AC_ADAPTER);
+
+	if ($ac_adapt =~ /: ([\w-]+)/) {
+		$ac_adapt = $1;
+
+		if ($ac_adapt eq 'on-line') {
+                        $full_text .= ' ⭫';
+		} elsif ($ac_adapt eq 'off-line') {
+                        $full_text .= ' ⭭';
+		}
+	}
 }
 
 $short_text = $full_text;
 
 if ($acpi =~ /(\d\d:\d\d):/) {
-	$full_text .= " ($1)";
+	$full_text .= " $1";
 }
 
 # print text
@@ -60,13 +75,9 @@ if ($status eq 'Discharging') {
 		print "#FF0000\n";
 	} elsif ($percent < 40) {
 		print "#FFAE00\n";
-	} elsif ($percent < 60) {
-		print "#FFF600\n";
-	} elsif ($percent < 85) {
-		print "#A8FF00\n";
 	}
 
-	if ($percent < 5) {
+	if ($percent < 7) {
 		exit(33);
 	}
 }
