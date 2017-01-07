@@ -1,20 +1,82 @@
 # i3blocks
 
-[![Build Status](https://travis-ci.org/vivien/i3blocks.svg?branch=master)](https://travis-ci.org/vivien/i3blocks)
-[![Join the chat at https://gitter.im/vivien/i3blocks](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/vivien/i3blocks?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 i3blocks is a highly flexible **status line** for the [i3](http://i3wm.org) 
 window manager. It handles *clicks*, *signals* and *language-agnostic* user 
-*scripts*.
+*scripts*. 
 
 The content of each *block* (e.g. time, battery status, network state, ...) is 
 the output of a *command* provided by the user. Blocks are updated on *click*, 
 at a given *interval* of time or on a given *signal*, also specified by the 
 user.
 
-It aims to respect the
-[i3bar protocol](http://i3wm.org/docs/i3bar-protocol.html), providing 
-customization such as text alignment, urgency, color, and more.
+This is a fork of vivien/i3blocks, which aims to provide various enhancements
+and alterations.
+
+##Changes
+
+###Scripts
+
+Various scripts are either created or altered to better suit my usage. 
+
+####Brightness
+
+Brightness tracks the brightness of the screen, and allows modifications by
+scrolling while hovering over the block. Because changing brightness requires
+root, I opted to use setuid. Those of you familiar with setuid will know it is
+not available from a script. So, I wrote a c program to provide the core
+functionality, then wrote a script wrapper that calls it. 
+
+
+####Music
+
+I use MPD to manage the playing of music on my system. mpc is the canonical cli
+for managing MPD. mpc's `--format` option doesn't support the current time, so I
+was forced* to write a program in c to get the time from libmpdclient. music
+then multiplexes together output from mpc and mpdstate to allow for easier
+modification and control.
+
+*Someone on Reddit posted the code, so I just copied it from there. It was
+easier.
+
+
+####Bandwidth
+
+I wrote two versions of bandwidth. The first deduplicates upload and download
+code, and forces you to create two instances in your config. The second one
+takes the average bandwidth usage from the last n calls, where n = 10. This
+second script is called bw.
+
+####Battery
+
+For battery, I basically just fucked around with colors and formatting. I think
+this is fairly basic, and plan on adding a system to i3blocks to make it easier. 
+
+####NM
+
+I use network-manager-applet for wifi, so I decided to forgoe the included wifi
+script, and use a wrapper around NM instead. 
+
+####Volume
+
+I couldn't make heads or tails or volume, so I renamed it volume-pre, and
+rewrote volume as a wrapper around it. It's functionality is, much like
+bandwidth, just to provide formatting. Interestingly, the formatting is solely
+arround the value of the percentage. The percentage isn't meaningful to mainline
+i3bar, but my fork allows it to be treated specially through the fill parameter.
+I might at some point add first class support for fill, and formatting based on
+its value. 
+
+###syrrim/i3bar
+
+My fork of i3bar support several options that require alterations to i3blocks'
+header files. There is also some responsibility that has been shifted from the
+bar to the statusline, that must be accounted for. 
+
+
+###Configuration
+
+This fork also maintains a configuration bringing together the two features
+described above. 
 
 - - -
 
@@ -22,6 +84,9 @@ Here is an example of status line, showing the time updated every 5 seconds,
 the volume updated only when i3blocks receives a SIGRTMIN+1, and click events.
 
 ```` ini
+#default value, will be set for everything
+color=#D2E7FF
+
 [volume]
 label=Volume:
 command=amixer get Master | grep -E -o '[0-9]{1,3}?%' | head -1
@@ -29,16 +94,36 @@ interval=once
 signal=1
 # use 'pkill -RTMIN+1 i3blocks' after changing the volume
 
+width=66
+above=true
+align=right
+
+background=#005C87
+fill_color=#00364F
+
 [time]
 command=date '+%D %T'
-interval=5
+interval=1
+const_width=a
+width=0
+align=center
+
+background=#020103
 
 [clickme]
-full_text=Click me!
+label=
 command=echo button=$BLOCK_BUTTON x=$BLOCK_X y=$BLOCK_Y
-min_width=button=1 x=1366 y=768
+interval=1
+width=66
 align=left
+
+background=#005C87
+fill_color=#00364F
 ````
+
+This example looks like so:
+
+![](example-1.png)
 
 You can use your own scripts, or the 
 [ones](https://github.com/vivien/i3blocks/tree/master/scripts) provided with 
@@ -46,12 +131,16 @@ i3blocks. Feel free to contribute and improve them!
 
 The default config will look like this:
 
-![](http://i.imgur.com/p3d6MeK.png)
+![example](screenie.png)
 
 The scripts provided by default may use external tools:
 
   * `mpstat` (often provided by the *sysstat* package) used by `cpu_usage`.
+
   * `acpi` (often provided by a package of the same name) used by `battery`.
+
+  * `mpc && libmpdclient` (go search it on your package manager) used by `music`
+    (width uses) `mpdstate` repectively
 
 The user contributed scripts may also use external tools:
 
@@ -73,14 +162,7 @@ feel free to edit it!
 
 ## Installation
 
-i3blocks may already be packaged for your distribution:
-
-  * Archlinux: [i3blocks](https://aur.archlinux.org/packages/i3blocks) and 
-  [i3blocks-git](https://aur.archlinux.org/packages/i3blocks-git) AURs.
-  * Gentoo: [ebuild](https://github.com/Sabayon-Labs/spike-community-overlay/tree/master/x11-misc/i3blocks)
-  * Debian: [i3blocks](https://packages.debian.org/i3blocks) and Ubuntu: [i3blocks](http://packages.ubuntu.com/i3blocks)
-
-Or you may install i3blocks from source:
+You may install i3blocks from source:
 
     $ git clone git://github.com/vivien/i3blocks
     $ cd i3blocks

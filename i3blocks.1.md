@@ -10,8 +10,8 @@ i3blocks [*options*]
 # DESCRIPTION
 
 **i3blocks** allows one to easily describe blocks in a simple format, and
-generate a status line for i3bar(1). It handles clicks, signals and time
-interval for user scripts.
+generate a status line for i3bar(1). It handles clicks, signals, widths, and
+time interval for user scripts.
 
 #OPTIONS
 -c <configfile>
@@ -100,6 +100,25 @@ for details.
 
  - `markup`
 
+These commands are part of syrrim/i3, and therefore supported here:
+
+`above`
+:       Whether the block should render above the succeeding block.
+
+`width`
+:     The number of characters ('M's) the block should consume. If set to zero,
+      becomes "variable width", and will split the remaining space with all
+      other variable with blocks. 
+
+`fill`
+:   syrrim/i3bar will fill in a certain percentage of the block to indicate
+    some percentage. If this number is set, it will be used as the percentage.
+    Otherwise, a number can be dragged out of the full_text.
+
+`fill_color`
+:   The color to use when filling in the above. If unset, `fill` will be
+    ignored.
+
 The following keys are specific to **i3blocks**.
 
 `command`
@@ -129,12 +148,16 @@ The following keys are specific to **i3blocks**.
      block will be updated when **i3blocks** receives SIGRTMIN+10.
 
 `label`
-: 	An optional label to preprend to the `full_text` after an update.
+: 	An optional label to prepend to the `full_text` after an update.
 
 `format`
 :    This property specifies the format of the output text. The default format
      is plain text, as described in the **COMMAND** section.
      If "json" (or 1) is used, the block output is parsed as JSON.
+
+`const_width`
+:    It set to the non blank string, tells i3blocks to leave the `width`
+     property well enough alone. 
 
 # COMMAND
 
@@ -247,7 +270,10 @@ scripts under `~/bin/blocks/` with the same name as the blocks:
 
 # SEE ALSO
 
-The development of i3blocks takes place on [Github](https://github.com/vivien/i3blocks).
+The development of i3blocks takes place on
+[Github](https://github.com/syrrim/i3blocks). Mainline i3blocks, and therefore
+the place where most patches should be directed, is
+[vivien/i3blocks](https://github.com/syrrim/i3blocks).
 
 The [wiki](https://github.com/vivien/i3blocks/wiki) is a good
 source of examples for blocks and screenshots.
