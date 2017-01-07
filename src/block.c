@@ -159,8 +159,8 @@ block_update_plain_text(struct block *block, char *buf)
 	char *lines = buf;
 
 	linecpy(&lines, props->full_text, sizeof(props->full_text) - 1);
-        if (block->interval == INTER_PERSIST)
-                return;
+	if (block->interval == INTER_PERSIST)
+        	return;
 
 	linecpy(&lines, props->short_text, sizeof(props->short_text) - 1);
 	if (*lines)
@@ -186,6 +186,26 @@ block_update_json(struct block *block, char *buf)
 	PROPERTIES(PARSE);
 
 #undef PARSE
+}
+int 
+utf8len(char *uni)
+{
+	int len = 0;
+	while(*uni){
+		char c = *uni;
+		int size = 0;
+		while(c & (1<<7)){
+			c <<= 1;
+			size ++;
+		}
+		if(!size)size=1;
+		while(size --> 0//size goes to zero 
+		      && *uni ){ //unfinished character is counted once
+			uni++;
+		}
+		len ++;
+	}
+	return len;
 }
 
 void
@@ -221,11 +241,17 @@ block_update(struct block *block)
 	else
 		block_update_plain_text(block, buf);
 
-	if (*FULL_TEXT(block) && *LABEL(block)) {
+	if (*FULL_TEXT(block) || *LABEL(block)) {
 		static const size_t size = sizeof(props->full_text);
 		char concat[size];
-		snprintf(concat, size, "%s %s", LABEL(block), FULL_TEXT(block));
+		snprintf(concat, size, "%s%s", LABEL(block), FULL_TEXT(block));
 		strcpy(props->full_text, concat);
+	}
+	if (*WIDTH(block) && !*CONST_WIDTH(block)) {
+		static const size_t size = sizeof(props->width);
+		char concat[size];
+		snprintf(concat, size, "%d", utf8len(props->full_text) + atoi(WIDTH(block)));
+		strcpy(props->width, concat);
 	}
 
 	bdebug(block, "updated successfully");

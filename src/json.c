@@ -143,10 +143,10 @@ json_print_bar(struct bar *bar)
 		struct block *block = bar->blocks + i;
 
 		/* full_text is the only mandatory key, skip if empty */
-		if (!*FULL_TEXT(block)) {
+		/*if (!*FULL_TEXT(block)) {//whoops!
 			bdebug(block, "no text to display, skipping");
 			continue;
-		}
+		}*/
 
 		print_block(block);
 	}

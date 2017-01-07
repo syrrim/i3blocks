@@ -45,8 +45,12 @@
 	_(short_text,            512,  PROP_I3BAR | PROP_STRING) \
 	_(color,                 8,    PROP_I3BAR | PROP_STRING) \
 	_(background,            8,    PROP_I3BAR | PROP_STRING) \
+	_(fill_color,            8,    PROP_I3BAR | PROP_STRING) \
 	_(border,                8,    PROP_I3BAR | PROP_STRING) \
 	_(min_width,             1024, PROP_I3BAR | PROP_STRING | PROP_NUMBER) \
+	_(width,                 8,    PROP_I3BAR | PROP_NUMBER) \
+	_(const_width,           8,                 PROP_BOOLEAN) \
+	_(above,                 8,    PROP_I3BAR | PROP_BOOLEAN) \
 	_(align,                 8,    PROP_I3BAR | PROP_STRING) \
 	_(name,                  32,   PROP_I3BAR | PROP_STRING) \
 	_(instance,              256,  PROP_I3BAR | PROP_STRING) \
@@ -87,6 +91,8 @@ struct block {
 #define COMMAND(_block)		(_block->default_props.command)
 #define LABEL(_block)		(_block->default_props.label)
 #define INTERVAL(_block)	(_block->default_props.interval)
+#define WIDTH(_block)		(_block->default_props.width)
+#define CONST_WIDTH(_block)	(_block->default_props.const_width)
 
 /* Shortcuts to update */
 #define FULL_TEXT(_block)	(_block->updated_props.full_text)
